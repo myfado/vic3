@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% load my_extras %}
+{% load table_operations %}
+{% block head_title %}{{object.name}}{% endblock %}
+{% block content %}
+<h3>{{ object.name }}, {{object.get_producer_display}}</h3>
+<h5>Points: {{ object.points }}</h5>
+
+<table class="table table-sm">
+  <thead>
+    <tr>
+      <th scope="col"></th>
+      <th scope="col">Nominal</th>
+      <th scope="col">Half</th>
+      <th scope="col">-42%</th>
+      <th scope="col">-40%</th>
+      <th scope="col">-30%</th>
+      <th scope="col">-20%</th>
+      <th scope="col">-10%</th>
+
+    </tr>
+  </thead>
+  <tbody>
+
+    <tr>
+      <th scope="row">Price</th>
+      <td class="table-success">{{ object.price }}</td>
+      <td class="table-dark">{{ object.price|get_discount:50 }}</td>
+      <td class="table-danger">{{ object.price|get_discount:42 }}</td>
+      <td class="table-warning">{{ object.price|get_discount:40 }}</td>
+      <td class="table-primary">{{ object.price|get_discount:30 }}</td>
+      <td class="table-info">{{ object.price|get_discount:20 }}</td>
+      <td class="table-active">{{ object.price|get_discount:10 }}</td>
+    </tr>
+  </tbody>
+</table>
+{% if object.discontinued == True %}
+<h2>Product is discontinued!</h2>
+{% endif %}
+
+<h4><a href="{{ object.link }}">Press here to see the product</a></h4>
+<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+  <div class="btn-group mr-2" role="group" aria-label="First group">
+  <a class="btn btn-outline-warning btn-sm" href="{% url 'product:product-update' object.id %}">Update</a>
+  <a class="btn btn-outline-danger btn-sm" href="{% url 'product:product-delete' object.id %}">Delete</a>
+  <a class="btn btn-outline-info btn-sm" href="{% url 'product:product-list' %}">Product List</a>
+</div>
+</div>
+
+<h3>{{object.name}} sales history:</h3>
+<table id="mydatatable" class="display" style="width:100%">
+  <thead>
+    <tr>
+      <th scope="col">Customer</th>
+      <th scope="col">Date</th>
+      <th scope="col">Discounted price</th>
+      <th scope="col">Amount</th>
+      <th scope="col">CC points</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for i in object.product_sells.all %}
+    <tr>
+      <td><a href="{% url 'customer:customer-detail' i.sell.customer.id %}">{{ i.sell.customer.l_name }}</td>
+      <td>{{ i.sell.created_at|date:'y-d-m' }}</td>
+      <td> {% if i.product.producer == 'CC' %}
+        {{ i.product.price | discounted:i.sell.discount_cc }}
+            {% elif i.product.producer == 'CI' %}
+        {{ i.product.price | discounted:i.sell.discount_ci }}
+            {% else %}
+        {{ i.product.price }}
+            {% endif %}
+      </td>
+      <td> {% if i.product.producer == 'CC' %}
+            {% mult_of_discon i.product.price i.sell.discount_cc i.quantity  %}
+        {% elif i.product.producer == 'CI' %}
+            {% mult_of_discon i.product.price i.sell.discount_ci i.quantity  %}
+        {% else %}
+            {{ i.quantity  |  mult:i.product.price }}
+        {% endif %} </td>
+      <td> {% if i.product.producer == 'CC' %}
+        {{ i.quantity | mult:i.product.points }}
+            {% endif %}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+     <tfoot>
+         <tr>
+           <th scope="col">Customer</th>
+           <th scope="col">Date</th>
+           <th scope="col">Discounted price</th>
+           <th scope="col">Amount</th>
+           <th scope="col">CC points</th>
+         </tr>
+     </tfoot>
+ </table>
+
+{% endblock %}

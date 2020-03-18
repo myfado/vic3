@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load table_operations %}
+{% block head_title %}{{object.name}}{% endblock %}
+{% block content %}
+
+<h2>Sales details</h2>
+<table class="table table-sm">
+   <thead>
+     <tr>
+       <th class="table-primary">Customer</th>
+       <th class="table-success">Purchased on</th>
+       <th class="table-dark">Discount CC</th>
+       <th class="table-dark">Discount CI</th>
+       <th class="table-dark">Delivery</th>
+       <th class="table-danger">Money received</th>
+       <th class="table-warning">Note</th>
+       <th class="table-secondary">Updated</th>
+     </tr>
+   </thead>
+   <tbody>
+     <tr>
+       <td class="table-primary">{{ object.customer }} </td>
+       <td class="table-success">{{object.created_at}}</td>
+       <td class="table-dark">{{object.get_discount_cc_display }}</td>
+       <td class="table-dark">{{object.get_discount_ci_display }}</td>
+       <td class="table-danger">{{object.get_delivery_display}}</td>
+       <td class="table-dark">{{object.money_received }}</td>
+       <td class="table-warning">{{object.note}}</td>
+       <td class="table-secondary">{{object.updated_at}}</td>
+     </tr>
+   </tbody>
+ </table>
+
+    <table id="mydatatable" class="display" style="width:100%">
+      <thead>
+        <tr>
+          <th scope="col">Product</th>
+          <th scope="col">Quantity</th>
+          <th scope="col">Discounted price</th>
+          <th scope="col">Amount</th>
+          <th scope="col">CC points</th>
+        </tr>
+      </thead>
+      <tbody>
+  {% for i in sell_object_list %}
+        <tr>
+          <td><a href="{% url 'product:product-detail' i.product.id %}/">{{ i.product.name }}</td>
+          <td>{{ i.quantity }}</td>
+          <td> {% if i.product.producer == 'CC' %}
+            {{ i.product.price | discounted:object.discount_cc }}
+                {% elif i.product.producer == 'CI' %}
+            {{ i.product.price | discounted:object.discount_ci }}
+                {% else %}
+            {{ i.product.price }}
+                {% endif %}
+          </td>
+          <td> {% if i.product.producer == 'CC' %}
+                {% mult_of_discon i.product.price object.discount_cc i.quantity  %}
+            {% elif i.product.producer == 'CI' %}
+                {% mult_of_discon i.product.price object.discount_ci i.quantity  %}
+            {% else %}
+                {{ i.quantity  |  mult:i.product.price }}
+            {% endif %} </td>
+          <td> {% if i.product.producer == 'CC' %}
+            {{ i.quantity | mult:i.product.points }}
+                {% endif %}</td>
+        </tr>
+  {% endfor %}
+  </tbody>
+         <tfoot>
+             <tr>
+               <th scope="col">Product</th>
+               <th scope="col">Quantity</th>
+               <th scope="col">Discounted price</th>
+               <th scope="col">Amount</th>
+               <th scope="col">CC points</th>             </tr>
+         </tfoot>
+     </table>
+
+<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+  <div class="btn-group mr-2" role="group" aria-label="First group">
+  <a class="btn btn-outline-warning btn-sm" href="{% url 'sell:sell-update' object.id %}">Update</a>
+  <a class="btn btn-outline-danger btn-sm" href="{% url 'sell:sell-delete' object.id %}">Delete</a>
+  <a class="btn btn-outline-info btn-sm" href="{% url 'sell:sell-list' %}">Back to Sales List</a>
+</div>
+</div>
+
+{% endblock %}

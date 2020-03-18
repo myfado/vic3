@@ -1,0 +1,43 @@
+{% extends "base_prod.html" %}
+{% load table_operations %}
+{% block content %}
+
+<h4>Product</h4>
+<a class="btn btn-outline-info btn-sm" href="{% url 'product:product-create' %}">Create new</a>
+
+  <table id="mydatatable" class="display" style="width:100%">
+    <thead>
+      <tr>
+        <th scope="col">Producer</th>
+        <th scope="col">Name</th>
+        <th scope="col">Points</th>
+        <th scope="col">Price</th>
+        <th scope="col">Stock</th>
+        <th scope="col">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+{% for prod in object_list %}
+      <tr>
+        <td>{{ prod.producer }}</td>
+        <td><a href="{% url 'product:product-detail' prod.id %}/">{{ prod.name }}</td>
+        <td>{{ prod.points }}</td>
+        <td>{{ prod.price }}</td>
+        <td>{{ prod.stock }}</td>
+        <td>{{ prod.stock|mult:prod.price }}</td>
+      </tr>
+{% endfor %}
+</tbody>
+       <tfoot>
+           <tr>
+             <th scope="col">Producer</th>
+             <th scope="col">Name</th>
+             <th scope="col">Points</th>
+             <th scope="col">Price</th>
+             <th scope="col">Stock</th>
+             <th scope="col">Amount</th>
+           </tr>
+       </tfoot>
+   </table>
+
+{% endblock %}
