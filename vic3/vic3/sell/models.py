@@ -5,22 +5,9 @@ from customer.models import Customer
 
 class Sell(models.Model):
     customer = models.ForeignKey(Customer, null=True, related_name="has_sales",on_delete=models.SET_NULL)
-    DISCOUNT_CC = (
-        (42, '42%'),
-        (40, '40%'),
-        (30, '30%'),
-        (20, '20%'),
-        (10, '10%'),
-        (0, '0%'),
-    )
+    DISCOUNT_CC = [(x, x) for x in range (0, 43)]
     discount_cc = models.PositiveSmallIntegerField(choices=DISCOUNT_CC, default=0)
-    DISCOUNT_CI = (
-        (40, '40%'),
-        (30, '30%'),
-        (20, '20%'),
-        (10, '10%'),
-        (0, '0%'),
-    )
+    DISCOUNT_CI = [(y, y) for y in range (0, 41)] 
     discount_ci = models.PositiveSmallIntegerField(choices=DISCOUNT_CI, default=0)
     DELIVERY = (
         ('HD', 'To Hand'),
